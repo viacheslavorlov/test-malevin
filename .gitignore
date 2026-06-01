@@ -1,0 +1,25 @@
+# Local env (real passwords/secrets). NEVER commit. Only .env.example is committed.
+.env
+.env.local
+.env.*.local
+
+# Node / Bun
+node_modules
+.pnp.*
+
+# Next.js
+.next
+out
+
+# Drizzle
+apps/api/drizzle/meta
+
+# Bun (legacy binary lockfile)
+bun.lockb
+
+# Misc
+*.log
+.DS_Store
+
+# GSD planning artifacts (already in original .gitignore, preserved)
+.planning/

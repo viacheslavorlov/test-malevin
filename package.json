@@ -1,0 +1,16 @@
+{
+  "name": "journal",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev:api": "bun --cwd apps/api run dev",
+    "dev:web": "bun --cwd apps/web run dev",
+    "migrate": "bun --cwd apps/api run migrate",
+    "build:api": "bun --cwd apps/api run build",
+    "build:web": "bun --cwd apps/web run build"
+  },
+  "overrides": {
+    "@sinclair/typebox": "0.34.13"
+  }
+}
