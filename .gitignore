@@ -36,3 +36,6 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+apps/api/data.db
+apps/api/data.db-shm
+apps/api/data.db-wal

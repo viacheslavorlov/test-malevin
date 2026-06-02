@@ -3,12 +3,20 @@
   "version": "1.0.50",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build src/index.ts --target bun --outdir dist",
+    "start": "bun run dist/index.js",
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@elysiajs/cors": "1.4.2",
+    "@elysiajs/jwt": "1.4.2",
+    "bcryptjs": "3.0.3",
+    "drizzle-orm": "0.45.2",
     "elysia": "latest"
   },
   "devDependencies": {
+    "@types/bcryptjs": "3.0.0",
     "bun-types": "latest"
   },
   "module": "src/index.js"
