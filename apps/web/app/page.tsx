@@ -21,6 +21,14 @@ import {
 } from "./components/ui/dialog";
 import { WorkLogTable } from "./components/work-log-table";
 import { WorkLogForm } from "./components/work-log-form";
+import {
+  ClipboardListIcon,
+  PlusIcon,
+  LogOutIcon,
+  SearchIcon,
+  ArrowUpDownIcon,
+  FilterXIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 
 export default function Home() {
@@ -45,6 +53,14 @@ export default function Home() {
   useEffect(() => {
     loadEntries();
   }, [loadEntries]);
+
+  function clearFilters() {
+    setDateFrom("");
+    setDateTo("");
+    setSort("desc");
+  }
+
+  const hasFilters = dateFrom || dateTo;
 
   async function handleDelete(id: number) {
     try {
@@ -72,64 +88,101 @@ export default function Home() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen p-4 md:p-8 max-w-5xl mx-auto">
-        <header className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">Журнал работ</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">{user?.username}</span>
-            <Button variant="outline" size="sm" onClick={logout}>
-              Выйти
-            </Button>
+      <div className="min-h-screen bg-background">
+        <header className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-sm">
+          <div className="max-w-5xl mx-auto px-4 md:px-8 h-14 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="size-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground shadow-sm">
+                <ClipboardListIcon className="size-4" />
+              </div>
+              <h1 className="font-bold text-base">Журнал работ</h1>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-muted-foreground hidden sm:inline">
+                {user?.username}
+              </span>
+              <Button variant="ghost" size="sm" onClick={logout}>
+                <LogOutIcon className="size-4" />
+                <span className="hidden sm:inline">Выйти</span>
+              </Button>
+            </div>
           </div>
         </header>
 
-        <div className="flex flex-wrap items-end gap-3 mb-6 p-4 rounded-lg border bg-card">
-          <div>
-            <label className="text-xs text-muted-foreground mb-1 block">Дата с</label>
-            <Input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              className="h-9"
-            />
+        <main className="max-w-5xl mx-auto px-4 md:px-8 py-6">
+          <div className="flex flex-wrap items-end gap-3 mb-6 p-3 rounded-xl border bg-card">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                Дата с
+              </label>
+              <Input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className="h-9 w-[150px]"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                Дата по
+              </label>
+              <Input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className="h-9 w-[150px]"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                <ArrowUpDownIcon className="size-3 inline mr-1" />
+                Сортировка
+              </label>
+              <Select value={sort} onValueChange={setSort}>
+                <SelectTrigger className="h-9 w-[150px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="desc">Сначала новые</SelectItem>
+                  <SelectItem value="asc">Сначала старые</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2 items-end pb-[1px]">
+              <Button
+                variant="default"
+                size="sm"
+                className="h-9"
+                onClick={loadEntries}
+              >
+                <SearchIcon className="size-4" />
+                Поиск
+              </Button>
+              {hasFilters && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-9"
+                  onClick={clearFilters}
+                >
+                  <FilterXIcon className="size-4" />
+                </Button>
+              )}
+              <Button
+                className="h-9 ml-2"
+                size="sm"
+                onClick={() => { setEditing(null); setShowForm(true); }}
+              >
+                <PlusIcon className="size-4" />
+                Добавить запись
+              </Button>
+            </div>
           </div>
-          <div>
-            <label className="text-xs text-muted-foreground mb-1 block">Дата по</label>
-            <Input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              className="h-9"
-            />
-          </div>
-          <div>
-            <label className="text-xs text-muted-foreground mb-1 block">Сортировка</label>
-            <Select value={sort} onValueChange={setSort}>
-              <SelectTrigger className="h-9 w-[140px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="desc">Сначала новые</SelectItem>
-                <SelectItem value="asc">Сначала старые</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-9"
-            onClick={loadEntries}
-          >
-            Применить
-          </Button>
-          <Button className="h-9 ml-auto" onClick={() => { setEditing(null); setShowForm(true); }}>
-            + Добавить запись
-          </Button>
-        </div>
 
-        <div className="rounded-lg border">
-          <WorkLogTable entries={entries} onEdit={handleEdit} onDelete={(id) => setDeleting(id)} />
-        </div>
+          <div className="rounded-xl border bg-card overflow-hidden">
+            <WorkLogTable entries={entries} onEdit={handleEdit} onDelete={(id) => setDeleting(id)} />
+          </div>
+        </main>
 
         <Dialog open={showForm} onOpenChange={setShowForm}>
           <DialogContent>

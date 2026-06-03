@@ -6,7 +6,7 @@
 
 - **Фронтенд**: Next.js 16, React 19, Tailwind CSS v4, shadcn/ui
 - **Бэкенд**: Elysia (Bun-native HTTP framework)
-- **База данных**: SQLite (через Drizzle ORM)
+- **База данных**: SQLite (через Drizzle ORM) для теста этого достаточно, в продакшене лучше будет использовать PostgreSQL
 - **Аутентификация**: JWT (bcryptjs + @elysiajs/jwt)
 - **Менеджер пакетов**: Bun 1.3.9
 - **Монорепозиторий**: Turborepo 2.9.14
@@ -15,6 +15,14 @@
 
 ```bash
 docker compose up --build
+```
+
+## Быстрый запуск (bun)
+
+если `bun` нет в системе - можно установить [https://bun.com/docs/installation](https://bun.com/docs/installation)
+
+```bash
+bun install && bun run build && bun run start
 ```
 
 Фронтенд: http://localhost:3000  
