@@ -13,9 +13,14 @@ export function runMigrations() {
   sqlite.run(`
     CREATE TABLE IF NOT EXISTS work_types (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL UNIQUE
+      name TEXT NOT NULL UNIQUE,
+      default_unit TEXT NOT NULL DEFAULT 'шт'
     )
   `);
+
+  try {
+    sqlite.run(`ALTER TABLE work_types ADD COLUMN default_unit TEXT NOT NULL DEFAULT 'шт'`);
+  } catch {} // column already exists
 
   sqlite.run(`
     CREATE TABLE IF NOT EXISTS work_entries (

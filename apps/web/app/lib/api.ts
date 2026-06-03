@@ -36,6 +36,7 @@ export interface WorkEntry {
 export interface WorkType {
   id: number;
   name: string;
+  defaultUnit: string;
 }
 
 export function api() {

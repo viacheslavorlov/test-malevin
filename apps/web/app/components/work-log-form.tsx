@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -19,6 +19,8 @@ interface Props {
   onCancel: () => void;
 }
 
+const UNIT_OPTIONS = ["м³", "м²", "м", "шт", "раз"];
+
 export function WorkLogForm({ entry, onSaved, onCancel }: Props) {
   const [workTypes, setWorkTypes] = useState<WorkType[]>([]);
   const [date, setDate] = useState(entry?.date ?? "");
@@ -31,6 +33,13 @@ export function WorkLogForm({ entry, onSaved, onCancel }: Props) {
   useEffect(() => {
     api().workTypes.list().then((res) => setWorkTypes(res.workTypes));
   }, []);
+
+  useEffect(() => {
+    if (!entry && workTypeId) {
+      const wt = workTypes.find((t) => String(t.id) === workTypeId);
+      if (wt) setUnit(wt.defaultUnit);
+    }
+  }, [workTypeId, workTypes, entry]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,6 +63,10 @@ export function WorkLogForm({ entry, onSaved, onCancel }: Props) {
       setSaving(false);
     }
   }
+
+  const handleUnitChange = useCallback((value: string) => {
+    setUnit(value);
+  }, []);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -92,14 +105,19 @@ export function WorkLogForm({ entry, onSaved, onCancel }: Props) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="unit">Ед. изм.</Label>
-          <Input
-            id="unit"
-            value={unit}
-            onChange={(e) => setUnit(e.target.value)}
-            placeholder="м³, м², шт..."
-            required
-          />
+          <Label>Ед. изм.</Label>
+          <Select value={unit} onValueChange={handleUnitChange} required>
+            <SelectTrigger>
+              <SelectValue placeholder="Выберите единицу" />
+            </SelectTrigger>
+            <SelectContent>
+              {UNIT_OPTIONS.map((u) => (
+                <SelectItem key={u} value={u}>
+                  {u}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

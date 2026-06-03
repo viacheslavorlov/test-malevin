@@ -10,6 +10,7 @@ export const users = sqliteTable("users", {
 export const workTypes = sqliteTable("work_types", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull().unique(),
+  defaultUnit: text("default_unit").notNull().default("шт"),
 });
 
 export const workEntries = sqliteTable("work_entries", {
