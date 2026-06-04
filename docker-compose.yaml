@@ -6,22 +6,24 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      DATABASE_URL: /app/apps/api/data/data.db
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      PORT: 3001
     volumes:
-      - api-data:/app/apps/api/data
+      - ./apps/api/data:/app/apps/api/data
     restart: unless-stopped
 
   web:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+      PORT: 3000
     depends_on:
       - api
     restart: unless-stopped
-
-volumes:
-  api-data:

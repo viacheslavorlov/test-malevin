@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { api, type WorkEntry, type WorkType } from "../lib/api";
+import { toast } from "sonner";
 
 interface Props {
   entry?: WorkEntry | null;
@@ -59,6 +60,9 @@ export function WorkLogForm({ entry, onSaved, onCancel }: Props) {
         await api().workEntries.create(data);
       }
       onSaved();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Ошибка сохранения";
+      toast.error(message);
     } finally {
       setSaving(false);
     }

@@ -1,22 +1,42 @@
 import { Elysia, t } from "elysia";
 import { jwt } from "@elysiajs/jwt";
 import { db } from "../db";
-import { workEntries, workTypes } from "../db/schema";
+import { workEntries, workTypes, users } from "../db/schema";
 import { eq, desc, asc, and, sql } from "drizzle-orm";
+import { env } from "../env";
 
 export const workEntryRoutes = new Elysia()
   .use(
     jwt({
       name: "jwt",
-      secret: process.env.JWT_SECRET || "change-me-in-production",
+      secret: env.jwtSecret,
     })
   )
-  .derive(async ({ headers, jwt }) => {
+  .derive(async ({ headers, jwt, set }) => {
     const auth = headers.authorization;
-    if (!auth?.startsWith("Bearer ")) throw new Error("Unauthorized");
+    if (!auth?.startsWith("Bearer ")) {
+      set.status = 401;
+      throw new Error("Неавторизован");
+    }
     const payload = await jwt.verify(auth.slice(7));
-    if (!payload) throw new Error("Unauthorized");
-    return { userId: Number(payload.sub) };
+    if (!payload) {
+      set.status = 401;
+      throw new Error("Неверный токен");
+    }
+    const userId = Number(payload.sub);
+
+    const user = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1)
+      .get();
+    if (!user) {
+      set.status = 401;
+      throw new Error("Пользователь не найден");
+    }
+
+    return { userId };
   })
   .get(
     "/api/work-entries",
@@ -103,12 +123,12 @@ export const workEntryRoutes = new Elysia()
 
       if (!existing) {
         set.status = 404;
-        return { error: "Entry not found" };
+        return { error: "Запись не найдена" };
       }
 
       if (existing.userId !== userId) {
         set.status = 403;
-        return { error: "Forbidden" };
+        return { error: "Эта запись создана другим пользователем, вам не разрешено изменять её" };
       }
 
       const entry = await db
@@ -150,12 +170,12 @@ export const workEntryRoutes = new Elysia()
 
       if (!existing) {
         set.status = 404;
-        return { error: "Entry not found" };
+        return { error: "Запись не найдена" };
       }
 
       if (existing.userId !== userId) {
         set.status = 403;
-        return { error: "Forbidden" };
+        return { error: "Эта запись создана другим пользователем, вам не разрешено удалять её" };
       }
 
       await db.delete(workEntries).where(eq(workEntries.id, params.id));

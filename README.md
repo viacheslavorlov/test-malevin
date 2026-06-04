@@ -20,6 +20,8 @@
 docker compose up --build
 ```
 
+SQLite данные сохраняются в `apps/api/data` и не удаляются при пересборке Docker-образов.
+
 ## Быстрый запуск (bun)
 
 если `bun` нет в системе - можно установить [https://bun.com/docs/installation](https://bun.com/docs/installation)

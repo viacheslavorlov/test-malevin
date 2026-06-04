@@ -4,12 +4,13 @@ import bcrypt from "bcryptjs";
 import { db } from "../db";
 import { users } from "../db/schema";
 import { eq } from "drizzle-orm";
+import { env } from "../env";
 
 export const authRoutes = new Elysia()
   .use(
     jwt({
       name: "jwt",
-      secret: process.env.JWT_SECRET || "change-me-in-production",
+      secret: env.jwtSecret,
     })
   )
   .post(
@@ -33,7 +34,11 @@ export const authRoutes = new Elysia()
         .returning()
         .get();
 
-      const token = await jwt.sign({ sub: String(user.id), username: user.username });
+      const token = await jwt.sign({
+        sub: String(user.id),
+        username: user.username,
+        exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+      });
       return { token, user: { id: user.id, username: user.username } };
     },
     {
@@ -55,16 +60,20 @@ export const authRoutes = new Elysia()
 
       if (!user) {
         set.status = 401;
-        return { error: "Invalid credentials" };
+        return { error: "Неверный логин или пароль" };
       }
 
       const valid = await bcrypt.compare(body.password, user.passwordHash);
       if (!valid) {
         set.status = 401;
-        return { error: "Invalid credentials" };
+        return { error: "Неверный логин или пароль" };
       }
 
-      const token = await jwt.sign({ sub: String(user.id), username: user.username });
+      const token = await jwt.sign({
+        sub: String(user.id),
+        username: user.username,
+        exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+      });
       return { token, user: { id: user.id, username: user.username } };
     },
     {

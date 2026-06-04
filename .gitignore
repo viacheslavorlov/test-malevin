@@ -36,6 +36,8 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+apps/api/data/*
+!apps/api/data/.gitkeep
 apps/api/data.db
 apps/api/data.db-shm
 apps/api/data.db-wal
